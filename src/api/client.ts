@@ -1,7 +1,7 @@
 import type { CaseInfo, MedicalEvent, ReviewStatus } from "../types";
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch(new URL(url, window.location.origin), {
     headers: { "Content-Type": "application/json" },
     ...options,
   });

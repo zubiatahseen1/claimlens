@@ -5,7 +5,7 @@ import Timeline from "./components/Timeline";
 import EventDetail from "./components/EventDetail";
 import { useCaseData } from "./hooks/useCaseData";
 import type { EventType } from "./types";
-import { formatDate, getInitials } from "./utils";
+import { filterEvents, formatDate, getInitials } from "./utils";
 
 export default function App() {
   const {
@@ -40,20 +40,10 @@ export default function App() {
   const progress = events.length
     ? Math.round((verifiedCount / events.length) * 100)
     : 0;
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return events
-      .filter((e) => activeTypes.length === 0 || activeTypes.includes(e.type))
-      .filter((e) => year === "all" || e.date.startsWith(year))
-      .filter(
-        (e) =>
-          q === "" ||
-          [e.title, e.provider, e.summary].some((text) =>
-            text.toLowerCase().includes(q),
-          ),
-      )
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }, [events, query, activeTypes, year]);
+  const filtered = useMemo(
+    () => filterEvents(events, { query, types: activeTypes, year }),
+    [events, query, activeTypes, year],
+  );
 
   const selected = events.find((e) => e.id === selectedId) ?? filtered[0];
 
