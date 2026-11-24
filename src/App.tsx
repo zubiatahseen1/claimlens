@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
 import Filters from "./components/Filters";
 import EventCard from "./components/EventCard";
-import { claimant, events } from "./data/events";
+import { useCaseData } from "./hooks/useCaseData";
 import type { EventType } from "./types";
 
 export default function App() {
+  const { caseInfo, events, state, error, reload } = useCaseData();
   const [query, setQuery] = useState("");
   const [activeTypes, setActiveTypes] = useState<EventType[]>([]);
   const [year, setYear] = useState("all");
 
   const years = useMemo(
     () => [...new Set(events.map((e) => e.date.slice(0, 4)))].sort(),
-    [],
+    [events],
   );
 
   const filtered = useMemo(() => {
@@ -27,7 +28,7 @@ export default function App() {
           ),
       )
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [query, activeTypes, year]);
+  }, [events, query, activeTypes, year]);
 
   function toggleType(type: EventType) {
     setActiveTypes((current) =>
@@ -41,6 +42,29 @@ export default function App() {
     setQuery("");
     setActiveTypes([]);
     setYear("all");
+  }
+
+  if (state === "loading") {
+    return (
+      <main className="layout">
+        <p className="status-message" role="status">
+          Loading case…
+        </p>
+      </main>
+    );
+  }
+
+  if (state === "error" || !caseInfo) {
+    return (
+      <main className="layout">
+        <div className="status-message" role="alert">
+          <p>Couldn't load this case: {error}</p>
+          <button type="button" className="link-button" onClick={reload}>
+            Try again
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -60,19 +84,19 @@ export default function App() {
           <dl className="case__meta">
             <div>
               <dt>Claimant</dt>
-              <dd>{claimant.name}</dd>
+              <dd>{caseInfo.name}</dd>
             </div>
             <div>
               <dt>Claim</dt>
-              <dd>{claimant.claimNumber}</dd>
+              <dd>{caseInfo.claimNumber}</dd>
             </div>
             <div>
               <dt>Type</dt>
-              <dd>{claimant.claimType}</dd>
+              <dd>{caseInfo.claimType}</dd>
             </div>
             <div>
               <dt>Pages reviewed</dt>
-              <dd>{claimant.pagesReviewed}</dd>
+              <dd>{caseInfo.pagesReviewed}</dd>
             </div>
           </dl>
         </section>
