@@ -7,6 +7,9 @@ export const claimant: CaseInfo = {
   injuryDate: "2024-02-12",
   claimType: "Workers' compensation",
   pagesReviewed: 412,
+  documents: 9,
+  adjuster: "Priya Nair",
+  status: "In review",
 };
 
 export const events: Omit<MedicalEvent, "status">[] = [
@@ -19,6 +22,7 @@ export const events: Omit<MedicalEvent, "status">[] = [
     summary:
       "Claimant reports lower back pain after lifting a pallet at work. Pain rated 8/10. Prescribed rest and anti-inflammatories.",
     sourcePage: 3,
+    keyFinding: true,
   },
   {
     id: 2,
@@ -58,6 +62,7 @@ export const events: Omit<MedicalEvent, "status">[] = [
     summary:
       "Small disc herniation at L4–L5 with mild contact on the left L5 nerve root.",
     sourcePage: 41,
+    keyFinding: true,
   },
   {
     id: 6,
@@ -98,6 +103,7 @@ export const events: Omit<MedicalEvent, "status">[] = [
     summary:
       "Range of motion improved. Recommends graduated return to modified duties.",
     sourcePage: 210,
+    keyFinding: true,
   },
   {
     id: 10,

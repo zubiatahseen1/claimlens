@@ -1,17 +1,29 @@
 import { useMemo, useState } from "react";
+import Sidebar from "./components/Sidebar";
 import Filters from "./components/Filters";
-import EventCard from "./components/EventCard";
+import Timeline from "./components/Timeline";
+import EventDetail from "./components/EventDetail";
 import { useCaseData } from "./hooks/useCaseData";
 import type { EventType } from "./types";
+import { formatDate, getInitials } from "./utils";
 
 export default function App() {
   const { caseInfo, events, state, error, reload } = useCaseData();
   const [query, setQuery] = useState("");
   const [activeTypes, setActiveTypes] = useState<EventType[]>([]);
   const [year, setYear] = useState("all");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const years = useMemo(
     () => [...new Set(events.map((e) => e.date.slice(0, 4)))].sort(),
+    [events],
+  );
+  const providerCount = useMemo(
+    () => new Set(events.map((e) => e.provider)).size,
+    [events],
+  );
+  const keyFindings = useMemo(
+    () => events.filter((e) => e.keyFinding),
     [events],
   );
 
@@ -30,6 +42,8 @@ export default function App() {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [events, query, activeTypes, year]);
 
+  const selected = events.find((e) => e.id === selectedId) ?? filtered[0];
+
   function toggleType(type: EventType) {
     setActiveTypes((current) =>
       current.includes(type)
@@ -44,106 +58,182 @@ export default function App() {
     setYear("all");
   }
 
-  if (state === "loading") {
-    return (
-      <main className="layout">
-        <p className="status-message" role="status">
-          Loading case…
-        </p>
-      </main>
-    );
-  }
-
-  if (state === "error" || !caseInfo) {
-    return (
-      <main className="layout">
-        <div className="status-message" role="alert">
-          <p>Couldn't load this case: {error}</p>
-          <button type="button" className="link-button" onClick={reload}>
-            Try again
-          </button>
-        </div>
-      </main>
-    );
+  function showEvent(id: number) {
+    clearFilters();
+    setSelectedId(id);
+    document.getElementById("timeline")?.scrollIntoView();
   }
 
   return (
-    <>
-      <a href="#timeline" className="skip-link">
-        Skip to timeline
+    <div className="app">
+      <a href="#main" className="skip-link">
+        Skip to main content
       </a>
 
-      <header className="topbar">
-        <p className="brand">ClaimLens</p>
-        <p className="demo-note">Demo · fictional data</p>
-      </header>
+      <Sidebar />
 
-      <main className="layout">
-        <section className="case" aria-labelledby="case-title">
-          <h1 id="case-title">Medical chronology</h1>
-          <dl className="case__meta">
-            <div>
-              <dt>Claimant</dt>
-              <dd>{caseInfo.name}</dd>
-            </div>
-            <div>
-              <dt>Claim</dt>
-              <dd>{caseInfo.claimNumber}</dd>
-            </div>
-            <div>
-              <dt>Type</dt>
-              <dd>{caseInfo.claimType}</dd>
-            </div>
-            <div>
-              <dt>Pages reviewed</dt>
-              <dd>{caseInfo.pagesReviewed}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <Filters
-          query={query}
-          onQueryChange={setQuery}
-          activeTypes={activeTypes}
-          onToggleType={toggleType}
-          year={year}
-          years={years}
-          onYearChange={setYear}
-        />
-
-        <section
-          id="timeline"
-          className="timeline"
-          aria-labelledby="timeline-title"
-          tabIndex={-1}
-        >
-          <div className="timeline__head">
-            <h2 id="timeline-title">Timeline</h2>
-            <p className="count" aria-live="polite">
-              Showing {filtered.length} of {events.length} events
-            </p>
+      <div className="shell">
+        <header className="topbar">
+          <p className="breadcrumb">
+            <span>Cases</span>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{caseInfo?.claimNumber ?? "…"}</span>
+          </p>
+          <div className="topbar__right">
+            <span className="demo-pill">Demo · fictional data</span>
+            <span className="avatar" aria-label="Signed in as Zubia Tahseen">
+              ZT
+            </span>
           </div>
+        </header>
 
-          {filtered.length > 0 ? (
-            <ol className="events">
-              {filtered.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </ol>
-          ) : (
-            <div className="empty">
-              <p>No events match your filters.</p>
-              <button
-                type="button"
-                className="link-button"
-                onClick={clearFilters}
-              >
-                Clear all filters
+        <main id="main" className="content" tabIndex={-1}>
+          {state === "loading" && (
+            <p className="status-message" role="status">
+              Loading case…
+            </p>
+          )}
+
+          {state === "error" && (
+            <div className="status-message" role="alert">
+              <p>Couldn't load this case: {error}</p>
+              <button type="button" className="btn" onClick={reload}>
+                Try again
               </button>
             </div>
           )}
-        </section>
-      </main>
-    </>
+
+          {state === "success" && caseInfo && (
+            <>
+              <section
+                id="overview"
+                className="case-header"
+                aria-labelledby="case-title"
+              >
+                <div className="case-header__id">
+                  <span className="case-avatar" aria-hidden="true">
+                    {getInitials(caseInfo.name)}
+                  </span>
+                  <div>
+                    <h1 id="case-title">{caseInfo.name}</h1>
+                    <p className="case-header__sub">
+                      {caseInfo.claimType} · Injury date{" "}
+                      {formatDate(caseInfo.injuryDate)} · Adjuster{" "}
+                      {caseInfo.adjuster}
+                    </p>
+                  </div>
+                </div>
+                <div className="case-header__actions">
+                  <span className="status">{caseInfo.status}</span>
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    onClick={() => window.print()}
+                  >
+                    Export summary
+                  </button>
+                </div>
+              </section>
+
+              <section className="stats" aria-label="Case statistics">
+                <div className="stat">
+                  <p className="stat__value">{caseInfo.pagesReviewed}</p>
+                  <p className="stat__label">Pages reviewed</p>
+                </div>
+                <div className="stat">
+                  <p className="stat__value">{caseInfo.documents}</p>
+                  <p className="stat__label">Source documents</p>
+                </div>
+                <div className="stat">
+                  <p className="stat__value">{events.length}</p>
+                  <p className="stat__label">Events extracted</p>
+                </div>
+                <div className="stat">
+                  <p className="stat__value">{providerCount}</p>
+                  <p className="stat__label">Providers</p>
+                </div>
+              </section>
+
+              <section
+                id="findings"
+                className="panel"
+                aria-labelledby="findings-title"
+              >
+                <h2 id="findings-title" className="panel__title">
+                  Key findings
+                </h2>
+                <ul className="findings">
+                  {keyFindings.map((e) => (
+                    <li key={e.id}>
+                      <button
+                        type="button"
+                        className="finding"
+                        onClick={() => showEvent(e.id)}
+                      >
+                        <span className="finding__date">
+                          {formatDate(e.date)}
+                        </span>
+                        <span className="finding__title">{e.title}</span>
+                        <span className="finding__summary">{e.summary}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section
+                id="timeline"
+                className="panel"
+                aria-labelledby="timeline-title"
+              >
+                <div className="panel__head">
+                  <h2 id="timeline-title" className="panel__title">
+                    Medical chronology
+                  </h2>
+                  <p className="count" aria-live="polite">
+                    Showing {filtered.length} of {events.length} events
+                  </p>
+                </div>
+
+                <Filters
+                  query={query}
+                  onQueryChange={setQuery}
+                  activeTypes={activeTypes}
+                  onToggleType={toggleType}
+                  year={year}
+                  years={years}
+                  onYearChange={setYear}
+                />
+
+                <div className="split">
+                  <div className="split__main">
+                    {filtered.length > 0 ? (
+                      <Timeline
+                        events={filtered}
+                        query={query}
+                        selectedId={selected?.id ?? null}
+                        onSelect={setSelectedId}
+                      />
+                    ) : (
+                      <div className="empty">
+                        <p>No events match your filters.</p>
+                        <button
+                          type="button"
+                          className="btn"
+                          onClick={clearFilters}
+                        >
+                          Clear all filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <EventDetail event={selected} />
+                </div>
+              </section>
+            </>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }

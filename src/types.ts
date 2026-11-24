@@ -1,6 +1,11 @@
-export type EventType = 'Visit' | 'Imaging' | 'Lab' | 'Procedure' | 'Medication';
+export type EventType =
+  | "Visit"
+  | "Imaging"
+  | "Lab"
+  | "Procedure"
+  | "Medication";
 
-export type ReviewStatus = 'pending' | 'verified' | 'flagged';
+export type ReviewStatus = "pending" | "verified" | "flagged";
 
 export interface MedicalEvent {
   id: number;
@@ -10,6 +15,7 @@ export interface MedicalEvent {
   provider: string;
   summary: string;
   sourcePage: number;
+  keyFinding?: boolean;
   status: ReviewStatus;
 }
 
@@ -19,4 +25,7 @@ export interface CaseInfo {
   injuryDate: string;
   claimType: string;
   pagesReviewed: number;
+  documents: number;
+  adjuster: string;
+  status: string;
 }
