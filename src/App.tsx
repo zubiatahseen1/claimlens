@@ -8,7 +8,16 @@ import type { EventType } from "./types";
 import { formatDate, getInitials } from "./utils";
 
 export default function App() {
-  const { caseInfo, events, state, error, reload } = useCaseData();
+  const {
+    caseInfo,
+    events,
+    state,
+    error,
+    reload,
+    setStatus,
+    savingId,
+    saveError,
+  } = useCaseData();
   const [query, setQuery] = useState("");
   const [activeTypes, setActiveTypes] = useState<EventType[]>([]);
   const [year, setYear] = useState("all");
@@ -26,7 +35,11 @@ export default function App() {
     () => events.filter((e) => e.keyFinding),
     [events],
   );
-
+  const verifiedCount = events.filter((e) => e.status === "verified").length;
+  const flaggedCount = events.filter((e) => e.status === "flagged").length;
+  const progress = events.length
+    ? Math.round((verifiedCount / events.length) * 100)
+    : 0;
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return events
@@ -152,6 +165,24 @@ export default function App() {
                   <p className="stat__value">{providerCount}</p>
                   <p className="stat__label">Providers</p>
                 </div>
+                <div className="stat">
+                  <p className="stat__value">
+                    {verifiedCount}/{events.length}
+                  </p>
+                  <p className="stat__label">
+                    Verified{flaggedCount > 0 && ` · ${flaggedCount} flagged`}
+                  </p>
+                  <div
+                    className="progress"
+                    role="progressbar"
+                    aria-label="Review progress"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={progress}
+                  >
+                    <span style={{ width: `${progress}%` }} />
+                  </div>
+                </div>
               </section>
 
               <section
@@ -227,7 +258,12 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  <EventDetail event={selected} />
+                  <EventDetail
+                    event={selected}
+                    saving={savingId === selected?.id}
+                    saveError={saveError}
+                    onStatusChange={setStatus}
+                  />
                 </div>
               </section>
             </>

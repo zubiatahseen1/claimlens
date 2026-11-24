@@ -730,6 +730,20 @@ mark {
 .btn--flag:hover {
   border-color: #c0264f;
 }
+/* Save feedback */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.save-state {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+.save-error {
+  font-size: 0.8125rem;
+  color: #a3132f;
+}
 
 /* Responsive */
 @media (max-width: 1024px) {

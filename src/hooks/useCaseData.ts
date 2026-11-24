@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCase, getEvents } from "../api/client";
-import type { CaseInfo, MedicalEvent } from "../types";
+import { getCase, getEvents, updateEventStatus } from "../api/client";
+import type { CaseInfo, MedicalEvent, ReviewStatus } from "../types";
 
 type LoadState = "loading" | "success" | "error";
 
@@ -9,6 +9,8 @@ export function useCaseData() {
   const [events, setEvents] = useState<MedicalEvent[]>([]);
   const [state, setState] = useState<LoadState>("loading");
   const [error, setError] = useState<string | null>(null);
+  const [savingId, setSavingId] = useState<number | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState("loading");
@@ -28,5 +30,39 @@ export function useCaseData() {
     load();
   }, [load]);
 
-  return { caseInfo, events, state, error, reload: load };
+  const setStatus = useCallback(
+    async (id: number, status: ReviewStatus) => {
+      const previous = events.find((e) => e.id === id)?.status;
+      if (previous === undefined) return;
+
+      setSaveError(null);
+      setSavingId(id);
+      setEvents((current) =>
+        current.map((e) => (e.id === id ? { ...e, status } : e)),
+      );
+
+      try {
+        await updateEventStatus(id, status);
+      } catch (err) {
+        setEvents((current) =>
+          current.map((e) => (e.id === id ? { ...e, status: previous } : e)),
+        );
+        setSaveError(err instanceof Error ? err.message : "Could not save");
+      } finally {
+        setSavingId(null);
+      }
+    },
+    [events],
+  );
+
+  return {
+    caseInfo,
+    events,
+    state,
+    error,
+    reload: load,
+    setStatus,
+    savingId,
+    saveError,
+  };
 }

@@ -1,6 +1,6 @@
 import type { CaseInfo, MedicalEvent } from "../types";
 
-// The data is 100% fictional. I dont know a Jordan Reyes :)
+// All data is fictional and for demo purposes only.
 export const claimant: CaseInfo = {
   name: "Jordan Reyes",
   claimNumber: "WC-2024-01873",
@@ -21,7 +21,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Lakeshore General Hospital",
     summary:
       "Claimant reports lower back pain after lifting a pallet at work. Pain rated 8/10. Prescribed rest and anti-inflammatories.",
+    excerpt:
+      "Pt states onset of acute lumbar pain while lifting pallet at workplace approx. 2 hrs prior to arrival. Pain 8/10, non-radiating.",
+    document: "ED_Report_Lakeshore.pdf",
     sourcePage: 3,
+    confidence: 98,
     keyFinding: true,
   },
   {
@@ -31,7 +35,10 @@ export const events: Omit<MedicalEvent, "status">[] = [
     title: "Naproxen 500 mg prescribed",
     provider: "Lakeshore General Hospital",
     summary: "Twice daily for 14 days. No known drug allergies recorded.",
+    excerpt: "Rx: Naproxen 500 mg PO BID x 14 days. NKDA.",
+    document: "ED_Report_Lakeshore.pdf",
     sourcePage: 5,
+    confidence: 95,
   },
   {
     id: 3,
@@ -41,7 +48,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Westview Imaging Centre",
     summary:
       "No fracture seen. Mild narrowing at L4–L5. Radiologist recommends MRI if symptoms persist.",
+    excerpt:
+      "No acute fracture. Mild disc space narrowing at L4–L5. Suggest MRI if clinically indicated.",
+    document: "Imaging_Westview.pdf",
     sourcePage: 18,
+    confidence: 97,
   },
   {
     id: 4,
@@ -51,7 +62,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Dr. A. Mensah, MD",
     summary:
       "Pain reduced to 6/10. Numbness reported in left leg. Referred for MRI and physiotherapy.",
+    excerpt:
+      "Reports intermittent numbness L leg. Pain improved to 6/10. Referral: MRI L-spine, physio.",
+    document: "Clinic_Notes_Mensah.pdf",
     sourcePage: 27,
+    confidence: 91,
   },
   {
     id: 5,
@@ -61,7 +76,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Westview Imaging Centre",
     summary:
       "Small disc herniation at L4–L5 with mild contact on the left L5 nerve root.",
+    excerpt:
+      "Small left paracentral disc herniation at L4–L5 contacting the traversing left L5 nerve root.",
+    document: "Imaging_Westview.pdf",
     sourcePage: 41,
+    confidence: 99,
     keyFinding: true,
   },
   {
@@ -72,7 +91,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Harbourfront Physio",
     summary:
       "Core strengthening and mobility program. Attendance: 11 of 12 sessions completed.",
+    excerpt:
+      "Plan: 12 sessions, core stabilization + McKenzie protocol. Attended 11/12.",
+    document: "Physio_Harbourfront.pdf",
     sourcePage: 56,
+    confidence: 88,
   },
   {
     id: 7,
@@ -82,7 +105,10 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Dynacare Lab",
     summary:
       "All values within normal range. Ordered to rule out inflammatory causes.",
+    excerpt: "CBC, ESR, CRP within reference ranges.",
+    document: "Lab_Results_Dynacare.pdf",
     sourcePage: 88,
+    confidence: 96,
   },
   {
     id: 8,
@@ -92,7 +118,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Dr. L. Chen, Pain Clinic",
     summary:
       "Left L4–L5 injection. Claimant reports 50% pain relief at 2-week check.",
+    excerpt:
+      "L L4–L5 transforaminal ESI performed. 2-wk f/u: ~50% relief reported.",
+    document: "Pain_Clinic_Chen.pdf",
     sourcePage: 132,
+    confidence: 93,
   },
   {
     id: 9,
@@ -102,7 +132,11 @@ export const events: Omit<MedicalEvent, "status">[] = [
     provider: "Dr. R. Patel, Orthopaedics",
     summary:
       "Range of motion improved. Recommends graduated return to modified duties.",
+    excerpt:
+      "ROM lumbar flexion improved to 70°. Opinion: fit for graduated RTW, modified duties.",
+    document: "IME_Report_Patel.pdf",
     sourcePage: 210,
+    confidence: 94,
     keyFinding: true,
   },
   {
@@ -112,6 +146,10 @@ export const events: Omit<MedicalEvent, "status">[] = [
     title: "Return-to-work assessment",
     provider: "Dr. A. Mensah, MD",
     summary: "Cleared for full duties with a 20 kg lifting limit for 3 months.",
+    excerpt:
+      "Cleared for full duties. Restriction: lifting ≤ 20 kg x 3 months.",
+    document: "Clinic_Notes_Mensah.pdf",
     sourcePage: 305,
+    confidence: 72,
   },
 ];

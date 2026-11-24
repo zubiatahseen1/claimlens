@@ -46,6 +46,14 @@ export default function Timeline({
                   <span className="event__top">
                     <time dateTime={event.date}>{formatDate(event.date)}</time>
                     <span className="event__tags">
+                      {event.status === "verified" && (
+                        <span className="badge badge--verified">
+                          ✓ Verified
+                        </span>
+                      )}
+                      {event.status === "flagged" && (
+                        <span className="badge badge--flagged">⚑ Flagged</span>
+                      )}
                       {event.keyFinding && (
                         <span className="badge badge--key">Key finding</span>
                       )}

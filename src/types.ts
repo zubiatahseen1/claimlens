@@ -15,6 +15,9 @@ export interface MedicalEvent {
   provider: string;
   summary: string;
   sourcePage: number;
+  document: string;
+  excerpt: string;
+  confidence: number; // 0–100: how sure the AI is about this extraction
   keyFinding?: boolean;
   status: ReviewStatus;
 }
