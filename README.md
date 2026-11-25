@@ -2,7 +2,7 @@
 
 ClaimLens is a small claims review tool I built to learn what it takes to review medical records for an insurance claim. It turns a claimant's records into a timeline you can search and filter, lets you verify or flag each event, and opens the original document at the exact page an event came from.
 
-**Live demo:** _coming soon_
+**Live demo:** [claimlens-blond.vercel.app](https://claimlens-blond.vercel.app)
 
 > Everything in this project is made up. The claimant, providers and documents are fictional.
 
