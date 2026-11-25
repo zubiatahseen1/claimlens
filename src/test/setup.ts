@@ -13,3 +13,12 @@ afterEach(() => {
 });
 
 afterAll(() => server.close());
+
+// jsdom doesn't implement <dialog> methods yet, so add the two our PDF viewer uses.
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.open = true;
+};
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.open = false;
+  this.dispatchEvent(new Event("close"));
+};

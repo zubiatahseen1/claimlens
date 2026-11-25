@@ -5,7 +5,10 @@ import App from "./App.tsx";
 
 async function enableMocking() {
   const { worker } = await import("./mocks/browser");
-  return worker.start();
+
+  // 'bypass': let requests we don't mock (fonts, the PDF) go to the network quietly.
+
+  return worker.start({ onUnhandledFrame: "bypass" });
 }
 
 enableMocking().then(() => {

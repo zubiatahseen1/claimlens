@@ -6,6 +6,7 @@ interface EventDetailProps {
   saving: boolean;
   saveError: string | null;
   onStatusChange: (id: number, status: ReviewStatus) => void;
+  onOpenSource: (event: MedicalEvent) => void;
 }
 
 function confidenceLevel(confidence: number) {
@@ -19,6 +20,7 @@ export default function EventDetail({
   saving,
   saveError,
   onStatusChange,
+  onOpenSource,
 }: EventDetailProps) {
   if (!event) {
     return (
@@ -92,6 +94,13 @@ export default function EventDetail({
           <span className="source__page">Page {event.sourcePage}</span>
         </figcaption>
         <blockquote className="source__quote">{event.excerpt}</blockquote>
+        <button
+          type="button"
+          className="source__open"
+          onClick={() => onOpenSource(event)}
+        >
+          Open page {event.sourcePage} in document →
+        </button>
       </figure>
 
       <div className="review" role="group" aria-label="Review this event">

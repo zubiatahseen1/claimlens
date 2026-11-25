@@ -1,12 +1,13 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { lazy, Suspense, useDeferredValue, useMemo, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Filters from "./components/Filters";
 import Timeline from "./components/Timeline";
 import EventDetail from "./components/EventDetail";
 import { useCaseData } from "./hooks/useCaseData";
-import type { EventType } from "./types";
+import type { EventType, MedicalEvent } from "./types";
 import { filterEvents, formatDate, getInitials } from "./utils";
 const MAX_FINDINGS = 6;
+const SourceViewer = lazy(() => import("./components/SourceViewer"));
 export default function App() {
   const {
     caseInfo,
@@ -22,6 +23,7 @@ export default function App() {
   const [activeTypes, setActiveTypes] = useState<EventType[]>([]);
   const [year, setYear] = useState("all");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [sourceEvent, setSourceEvent] = useState<MedicalEvent | null>(null);
 
   const years = useMemo(
     () => [...new Set(events.map((e) => e.date.slice(0, 4)))].sort(),
@@ -266,13 +268,26 @@ export default function App() {
                     saving={savingId === selected?.id}
                     saveError={saveError}
                     onStatusChange={setStatus}
+                    onOpenSource={setSourceEvent}
                   />
                 </div>
               </section>
             </>
           )}
-        </main>
+               </main>
       </div>
+
+      {sourceEvent && (
+        <Suspense
+          fallback={
+            <p className="viewer-loading" role="status">
+              Opening document…
+            </p>
+          }
+        >
+          <SourceViewer event={sourceEvent} onClose={() => setSourceEvent(null)} />
+        </Suspense>
+      )}
     </div>
   );
 }

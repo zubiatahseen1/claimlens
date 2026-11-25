@@ -14,6 +14,7 @@ function createRandom(seed: number) {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const START = Date.UTC(2019, 0, 1);
+const TOTAL_PAGES = 412;
 
 // Builds a large, realistic-looking claim file for performance testing.
 export function generateEvents(count: number): MedicalEvent[] {
@@ -27,7 +28,7 @@ export function generateEvents(count: number): MedicalEvent[] {
       ...template,
       id: i + 1,
       date: new Date(START + dayOffset * DAY_MS).toISOString().slice(0, 10),
-      sourcePage: 1 + Math.floor(random() * 5000),
+      sourcePage: 1 + Math.floor(random() * TOTAL_PAGES),
       confidence: 70 + Math.floor(random() * 30),
       keyFinding: random() < 0.01,
       status: "pending",
