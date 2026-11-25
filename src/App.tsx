@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Filters from "./components/Filters";
 import Timeline from "./components/Timeline";
@@ -6,7 +6,7 @@ import EventDetail from "./components/EventDetail";
 import { useCaseData } from "./hooks/useCaseData";
 import type { EventType } from "./types";
 import { filterEvents, formatDate, getInitials } from "./utils";
-
+const MAX_FINDINGS = 6;
 export default function App() {
   const {
     caseInfo,
@@ -40,9 +40,13 @@ export default function App() {
   const progress = events.length
     ? Math.round((verifiedCount / events.length) * 100)
     : 0;
+  const deferredQuery = useDeferredValue(query);
+  const isFiltering = query !== deferredQuery;
+
   const filtered = useMemo(
-    () => filterEvents(events, { query, types: activeTypes, year }),
-    [events, query, activeTypes, year],
+    () =>
+      filterEvents(events, { query: deferredQuery, types: activeTypes, year }),
+    [events, deferredQuery, activeTypes, year],
   );
 
   const selected = events.find((e) => e.id === selectedId) ?? filtered[0];
@@ -184,7 +188,7 @@ export default function App() {
                   Key findings
                 </h2>
                 <ul className="findings">
-                  {keyFindings.map((e) => (
+                  {keyFindings.slice(0, MAX_FINDINGS).map((e) => (
                     <li key={e.id}>
                       <button
                         type="button"
@@ -200,6 +204,12 @@ export default function App() {
                     </li>
                   ))}
                 </ul>
+                {keyFindings.length > MAX_FINDINGS && (
+                  <p className="findings__more">
+                    + {keyFindings.length - MAX_FINDINGS} more key findings in
+                    the timeline
+                  </p>
+                )}
               </section>
 
               <section
@@ -227,11 +237,14 @@ export default function App() {
                 />
 
                 <div className="split">
-                  <div className="split__main">
+                  <div
+                    className={`split__main${isFiltering ? " is-stale" : ""}`}
+                  >
                     {filtered.length > 0 ? (
                       <Timeline
+                        key={`${deferredQuery}|${activeTypes.join(",")}|${year}`}
                         events={filtered}
-                        query={query}
+                        query={deferredQuery}
                         selectedId={selected?.id ?? null}
                         onSelect={setSelectedId}
                       />

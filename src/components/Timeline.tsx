@@ -1,6 +1,9 @@
+import { memo, useMemo, useState } from "react";
 import type { MedicalEvent } from "../types";
 import { formatDate, formatMonth } from "../utils";
 import Highlight from "./Highlight";
+
+export const PAGE_SIZE = 50;
 
 interface TimelineProps {
   events: MedicalEvent[];
@@ -9,17 +12,25 @@ interface TimelineProps {
   onSelect: (id: number) => void;
 }
 
-export default function Timeline({
-  events,
-  query,
-  selectedId,
-  onSelect,
-}: TimelineProps) {
-  const groups = events.reduce<Record<string, MedicalEvent[]>>((acc, event) => {
-    const key = event.date.slice(0, 7);
-    (acc[key] ??= []).push(event);
-    return acc;
-  }, {});
+function Timeline({ events, query, selectedId, onSelect }: TimelineProps) {
+  // Render events in pages instead of all at once, so large files stay fast.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visible = useMemo(
+    () => events.slice(0, visibleCount),
+    [events, visibleCount],
+  );
+  const remaining = events.length - visible.length;
+
+  // Group events by month, e.g. { "2024-02": [...], "2024-03": [...] }
+  const groups = useMemo(
+    () =>
+      visible.reduce<Record<string, MedicalEvent[]>>((acc, event) => {
+        const key = event.date.slice(0, 7);
+        (acc[key] ??= []).push(event);
+        return acc;
+      }, {}),
+    [visible],
+  );
 
   return (
     <div className="months">
@@ -75,6 +86,18 @@ export default function Timeline({
           </ol>
         </section>
       ))}
+
+      {remaining > 0 && (
+        <button
+          type="button"
+          className="btn show-more"
+          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+        >
+          Show {Math.min(PAGE_SIZE, remaining)} more ({remaining} remaining)
+        </button>
+      )}
     </div>
   );
 }
+
+export default memo(Timeline);

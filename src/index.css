@@ -744,7 +744,24 @@ mark {
   font-size: 0.8125rem;
   color: #a3132f;
 }
-
+/* Performance */
+.event {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 96px;
+}
+.is-stale {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.show-more {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+.findings__more {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
 /* Responsive */
 @media (max-width: 1024px) {
   .split {
